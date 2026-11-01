@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#142d22">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="เติมไฟ">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="เว็บแอปติดตามภารกิจสุขภาพ 30 วัน สำหรับสองคน">
+<title>เติมไฟให้ชีวิต · 30 วัน</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<style>
+:root{
+  --bg:#f4f8f5;--paper:#fff;--ink:#1c3227;--muted:#7c8b83;
+  --green:#286b4c;--green-dark:#142d22;--green-light:#e7f3eb;
+  --gold:#f5a623;--line:#e6ece7;
+  --shadow:0 10px 30px rgba(23,56,43,.06);
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Noto Sans Thai","Sarabun",system-ui,-apple-system,"Segoe UI",sans-serif;
+  line-height:1.6;font-size:15px;overscroll-behavior-y:contain}
+button{font:inherit;cursor:pointer}
+h1,h2,h3{margin:0;line-height:1.3}
+h1{font-size:clamp(24px,5vw,38px);letter-spacing:-.5px}
+h2{font-size:17px}
+
+.hero{
+  background:
+    radial-gradient(circle at 88% 8%, rgba(240,180,80,.22) 0, transparent 38%),
+    radial-gradient(circle at 15% 95%, rgba(120,200,150,.16) 0, transparent 42%),
+    linear-gradient(135deg, #0f2319 0%, #1e4833 55%, #2a5c40 100%);
+  color:#fff;padding:calc(22px + var(--safe-top)) 16px 60px;position:relative;overflow:hidden;
+}
+.wrap{max-width:1000px;margin:auto;padding:0 14px}
+.hero-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+  color:#c8ded1;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.hero-tag{border:1px solid rgba(255,255,255,.28);border-radius:99px;padding:5px 12px;background:rgba(255,255,255,.06)}
+.hero h1{margin:12px 0 8px;font-weight:800}
+.hero h1 .emoji{filter:drop-shadow(0 2px 8px rgba(255,140,0,.5))}
+.hero p{margin:0;color:#d4e6da;max-width:640px;font-size:14px}
+
+main{padding:0 0 40px;margin-top:-34px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:16px;
+  padding:12px 13px;box-shadow:var(--shadow)}
+.stat .num{display:block;font-size:22px;font-weight:800;color:var(--green);
+  line-height:1.15;font-variant-numeric:tabular-nums}
+.stat .lbl{font-size:11px;color:var(--muted);display:block;margin-top:2px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;
+  box-shadow:var(--shadow);padding:16px;margin-top:13px}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;
+  gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.sub{font-size:12px;color:var(--muted);margin:3px 0 0}
+
+/* Week tabs */
+.week-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;scroll-snap-type:x mandatory}
+.week-tabs::-webkit-scrollbar{height:5px}
+.week-tabs::-webkit-scrollbar-thumb{background:#cbd9d0;border-radius:99px}
+.week-tab{
+  flex:0 0 auto;border:1.5px solid var(--line);background:#fff;border-radius:12px;
+  padding:9px 12px;font-size:12px;font-weight:700;color:var(--muted);
+  transition:.18s;min-width:118px;text-align:left;line-height:1.3;scroll-snap-align:start;
+}
+.week-tab .wt-label{display:block;font-size:12.5px;color:var(--ink)}
+.week-tab .wt-range{display:block;font-size:10px;font-weight:500;color:var(--muted);margin-top:1px}
+.week-tab .wt-theme{display:block;font-size:10px;font-weight:600;color:var(--green);margin-top:2px}
+.week-tab.active{border-color:var(--green);background:var(--green-light)}
+.week-tab.active .wt-label{color:var(--green)}
+
+.week-banner{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  background:linear-gradient(135deg,#eef7f1,#f6fbf8);border-radius:13px;padding:10px 13px;
+  margin:12px 0 6px;border:1px solid #d7e9de;
+}
+.week-banner .wb-title{font-weight:800;color:var(--green);font-size:13.5px}
+.week-banner .wb-theme{font-size:11.5px;color:var(--muted)}
+.week-banner .wb-prog{font-size:12px;color:var(--green);font-weight:700;font-variant-numeric:tabular-nums}
+
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.days.short{grid-template-columns:repeat(2,minmax(0,1fr))}
+.fday{border:1.5px solid var(--line);background:#fff;border-radius:12px;
+  padding:8px 3px 7px;text-align:center;display:flex;flex-direction:column;
+  align-items:center;gap:4px;transition:.18s;position:relative;overflow:hidden}
+.fday.sel{border-color:var(--green);box-shadow:0 0 0 3px rgba(40,107,76,.12)}
+.fday.lit{background:linear-gradient(180deg,#fffaf0,#fff);border-color:#f0c97a}
+.fday .dnum{font-size:12px;font-weight:700;color:var(--ink);line-height:1.1}
+.fday .dnum small{display:block;font-size:9px;color:var(--muted);font-weight:500}
+.fday .flames{display:flex;flex-wrap:wrap;gap:1px;justify-content:center;line-height:1;min-height:12px}
+.fday .gain{font-size:9.5px;color:var(--muted);font-weight:600;line-height:1}
+.fday.lit .gain{color:#b8801a}
+.fday.sel .dnum{color:var(--green)}
+.fday .alt-badge{position:absolute;top:3px;right:4px;font-size:9px;
+  background:#fff4d9;border:1px solid #f0d28a;border-radius:99px;padding:0 4px;line-height:1.3}
+
+.flame-mini{font-size:11px;line-height:1;filter:grayscale(1) brightness(.9);opacity:.22;
+  transition:filter .35s, opacity .35s}
+.flame-mini.on{filter:drop-shadow(0 0 4px rgba(255,150,40,.85)) drop-shadow(0 0 8px rgba(255,180,60,.5));opacity:1;
+  animation:miniPop .55s cubic-bezier(.2,.8,.3,1.2) both, flicker 2s ease-in-out infinite .55s}
+@keyframes miniPop{0%{transform:scale(.2) translateY(6px)}55%{transform:scale(1.35) translateY(-3px)}100%{transform:scale(1) translateY(0)}}
+@keyframes flicker{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.1) translateY(-1px)}}
+
+.bar{height:9px;background:#edf2ed;border-radius:99px;overflow:hidden;margin:12px 0 8px}
+.bar>i{display:block;height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,#4c9b69,#f3b13f);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.notice{background:var(--green-light);border-radius:12px;padding:10px 13px;
+  font-size:12.5px;color:#1f5c3e;display:flex;gap:8px;align-items:center}
+.notice::before{content:"🌱";font-size:15px}
+
+.grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(280px,.92fr);gap:13px;align-items:start}
+@media(max-width:780px){.grid{grid-template-columns:1fr}}
+
+.tabs{display:flex;gap:6px;background:#eef3ef;padding:4px;border-radius:12px;margin:10px 0 4px}
+.tab{flex:1;border:0;background:transparent;border-radius:9px;padding:9px 8px;
+  font-weight:700;font-size:13px;color:var(--muted);transition:.2s}
+.tab.active{background:#fff;color:var(--green);box-shadow:0 2px 8px rgba(23,56,43,.08)}
+.tab[data-person="female"].active{color:#b8386f}
+.tab[data-person="male"].active{color:#3a6bb8}
+
+.item{display:flex;align-items:flex-start;gap:11px;padding:11px 0;
+  border-bottom:1px solid #f0f4f1;cursor:pointer;transition:opacity .2s}
+.item:last-child{border:0}
+.item input{appearance:none;-webkit-appearance:none;width:22px;height:22px;
+  border:2px solid #cfd9d2;border-radius:7px;margin:1px 0 0;flex-shrink:0;cursor:pointer;
+  transition:.2s;position:relative}
+.item input:checked{background:var(--green);border-color:var(--green)}
+.item input:checked::after{content:"";position:absolute;left:6px;top:2px;width:5px;height:10px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.item input:disabled{cursor:not-allowed;opacity:.9}
+.item label{flex:1;cursor:pointer;font-size:14px;line-height:1.45}
+.item small{display:block;color:var(--muted);font-size:11.5px;margin-top:1px}
+.item.done label{color:#a3b0a9;text-decoration:line-through;text-decoration-color:rgba(163,176,169,.6)}
+.item.alt-on label{text-decoration:none;color:var(--green)}
+.item.alt-on small{color:#b8801a;font-weight:600}
+
+.alt-block{margin:13px 0 4px}
+.alt-btn{
+  width:100%;border:1.5px dashed #cfd9d2;background:#fafcfb;color:var(--ink);
+  border-radius:13px;padding:11px 14px;font-weight:700;font-size:13.5px;
+  display:flex;align-items:center;justify-content:center;gap:8px;transition:.18s;
+}
+.alt-btn.active{background:linear-gradient(135deg,#fff3d4,#fff8e9);border-color:#f0c97a;
+  color:#8a6212;border-style:solid}
+.alt-panel{margin-top:8px;padding:11px 13px;background:#fffaf0;border:1px solid #f3e2bd;
+  border-radius:12px;animation:slideDown .3s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.alt-panel.hidden{display:none}
+.alt-panel input{width:100%;border:1px solid #eeddb8;background:#fff;border-radius:9px;
+  padding:9px 11px;font:inherit;font-size:13.5px;color:var(--ink)}
+.alt-panel input:focus{outline:none;border-color:#d6a93a;box-shadow:0 0 0 3px rgba(214,169,58,.15)}
+.alt-hint{font-size:11.5px;color:#96701c;margin-top:6px;line-height:1.4}
+
+textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:12px;
+  padding:11px 12px;font:inherit;font-size:14px;resize:vertical;background:#fafcfb;transition:.2s}
+textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(40,107,76,.1);background:#fff}
+
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;
+  padding:10px 14px;font-weight:600;font-size:13.5px;transition:.18s}
+.btn.primary{background:var(--green);color:#fff;border-color:var(--green)}
+.btn.danger{color:#a34b4b}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+.plan{margin-top:4px}
+.plan-item{position:relative;padding:8px 0 8px 22px;font-size:13.5px;
+  border-bottom:1px dashed #eef2ef}
+.plan-item:last-child{border:0}
+.plan-item::before{content:"✓";position:absolute;left:2px;top:8px;
+  color:var(--green);font-weight:800;font-size:13px}
+.plan-item.alt{color:#96701c}
+.plan-item.alt::before{content:"🎯";color:#b8801a}
+.callout{background:linear-gradient(135deg,#fffaf0,#fff);border:1px solid #f3e2bd;
+  border-radius:14px;padding:12px 14px;font-size:12.5px;color:#7a5a1c}
+.callout ol{margin:0;padding-left:18px}
+.callout li{margin:4px 0}
+
+.meal-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.meal{width:100%;border-collapse:collapse;font-size:12.5px;min-width:520px}
+table.meal th,table.meal td{padding:8px 7px;border-bottom:1px solid #f0f4f1;text-align:left;vertical-align:top}
+table.meal th{color:var(--muted);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+table.meal td:first-child{font-weight:700;color:var(--green);white-space:nowrap}
+table.meal tr:last-child td{border-bottom:0}
+
+footer{text-align:center;color:var(--muted);font-size:11.5px;
+  padding:16px 14px calc(22px + var(--safe-bottom))}
+
+/* Celebration */
+.burst-overlay{position:fixed;inset:0;z-index:9999;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+.burst-spark{position:absolute;font-size:22px;line-height:1;will-change:transform,opacity;
+  animation:burstFly var(--dur) cubic-bezier(.18,.72,.32,1) forwards;animation-delay:var(--del)}
+@keyframes burstFly{0%{transform:translate(-50%,-50%) scale(.2) rotate(0);opacity:0}
+  15%{opacity:1}
+  100%{transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(1.15) rotate(var(--rot));opacity:0}}
+.burst-glow{position:absolute;width:280px;height:280px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,180,60,.55),rgba(255,140,0,.15) 45%,transparent 70%);
+  animation:glowPulse .9s ease-out forwards}
+@keyframes glowPulse{0%{transform:scale(.2);opacity:0}35%{opacity:1}100%{transform:scale(1.8);opacity:0}}
+.toast{position:relative;background:linear-gradient(135deg,#1e4833,#2a6b48);
+  color:#fff;padding:14px 22px;border-radius:16px;
+  box-shadow:0 24px 60px rgba(15,35,25,.4),0 0 0 1px rgba(255,255,255,.08) inset;
+  text-align:center;display:flex;flex-direction:column;gap:2px;
+  animation:toastIn .55s cubic-bezier(.2,.8,.3,1.2) both, toastOut .35s ease 2.1s forwards}
+.toast strong{font-size:17px;font-weight:800;letter-spacing:-.2px}
+.toast span{font-size:12px;color:#cfe6d8}
+@keyframes toastIn{0%{transform:scale(.5) translateY(20px);opacity:0}
+  60%{transform:scale(1.06) translateY(0)}100%{transform:scale(1);opacity:1}}
+@keyframes toastOut{to{opacity:0;transform:scale(.94) translateY(-8px)}}
+
+@media(max-width:760px){
+  .card{padding:14px;border-radius:16px}
+  .stats{gap:7px}
+  .stat{padding:10px 11px;border-radius:14px}
+  .stat .num{font-size:18px}
+  .stat .lbl{font-size:10px}
+  .days{gap:5px}
+  .fday{padding:7px 2px 6px}
+  .fday .dnum{font-size:11px}
+  .flame-mini{font-size:10px}
+  .fday .gain{font-size:9px}
+  h1{font-size:24px}
+  .item{padding:10px 0}
+  .item label{font-size:13.5px}
+  .week-tab{min-width:110px;padding:8px 10px}
+}
+@media(max-width:400px){
+  .stats{grid-template-columns:1fr 1fr}
+  .stats .stat:last-child{grid-column:span 2}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-top">
+      <span>30-Day Reset · 1–30 พ.ย. 2569</span>
+      <span class="hero-tag">ทำไปด้วยกัน 🌱</span>
+    </div>
+    <h1>เติมไฟให้ชีวิต <span class="emoji">🔥</span></h1>
+    <p>4 สัปดาห์ ไล่ระดับจากเดินเบา ๆ → เดินเร็ว → สลับวิ่ง → วิ่งต่อเนื่อง</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="stats">
+    <div class="stat"><span class="num" id="fireCount">0 / 115</span><span class="lbl">ไฟที่สะสมได้</span></div>
+    <div class="stat"><span class="num" id="daysDone">0 / 30</span><span class="lbl">วันที่ทำครบทั้งคู่</span></div>
+    <div class="stat"><span class="num" id="percent">0%</span><span class="lbl">ความคืบหน้าวันที่เลือก</span></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>เปลวไฟตลอด 30 วัน</h2>
+        <p class="sub">ไฟวนรอบทุก 7 วัน · รวมสูงสุด 115 ดวง</p>
+      </div>
+    </div>
+    <div class="week-tabs" id="weekTabs"></div>
+    <div class="week-banner" id="weekBanner"></div>
+    <div class="days" id="fireWeek"></div>
+    <div class="bar"><i id="barFill"></i></div>
+    <div class="notice" id="notice">เริ่มจากวันแรก แล้วค่อย ๆ เติมไฟให้ตัวเอง</div>
+  </section>
+
+  <div class="grid">
+    <div>
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>เช็กลิสต์ประจำวัน</h2>
+            <p class="sub" id="dateText">วันที่ 1 พฤศจิกายน 2569</p>
+          </div>
+          <span class="sub" id="dayStatus">ยังไม่เริ่ม</span>
+        </div>
+        <div class="tabs">
+          <button class="tab active" data-person="female">ฝ่ายหญิง</button>
+          <button class="tab" data-person="male">ฝ่ายชาย</button>
+        </div>
+        <div id="checklist"></div>
+
+        <div class="alt-block">
+          <button class="alt-btn" id="altBtn">🎯 วันนี้ไม่ได้วิ่ง — ทำกิจกรรมอื่นแทน</button>
+          <div class="alt-panel hidden" id="altPanel">
+            <input type="text" id="altInput" placeholder="ระบุกิจกรรม เช่น ทำงานบ้าน เดินซื้อของ">
+            <div class="alt-hint">กิจกรรมนี้จะนับแทน "เดินหรือออกกำลังกาย" ในเช็กลิสต์ของวันนี้</div>
+          </div>
+        </div>
+
+        <label class="sub" for="note" style="display:block;margin:13px 0 6px">บันทึกของคนนี้ในวันนี้</label>
+        <textarea id="note" placeholder="วันนี้เป็นอย่างไร? ทำอะไรได้ดี?"></textarea>
+        <div class="actions">
+          <button class="btn primary" id="saveNote">บันทึกโน้ต</button>
+          <button class="btn" id="clearPerson">ล้างรายการของคนนี้</button>
+        </div>
+      </section>
+    </div>
+
+    <aside>
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2 id="planTitle">แผนของวันที่ 1</h2>
+            <p class="sub" id="planDate">วันที่ 1 พฤศจิกายน 2569</p>
+          </div>
+        </div>
+        <div class="plan" id="planBody"></div>
+      </section>
+      <section class="card">
+        <h2>กติกา 4 ข้อ</h2>
+        <div class="callout">
+          <ol>
+            <li>ตื่นเวลาเดิมทุกวัน แม้คืนก่อนจะนอนไม่หลับ</li>
+            <li>ทำไม่ครบไม่เป็นไร — พลาดวันไหนไม่ต้องชดเชย</li>
+            <li>ไม่เปรียบเทียบกัน — เป้าหมายของสองคนคนละทิศ</li>
+            <li>เจ็บหน้าอก หน้ามืด หายใจผิดปกติ → หยุดทันที</li>
+          </ol>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>เมนูตัวอย่าง 7 วัน (วนซ้ำได้)</h2>
+        <p class="sub">ฝ่ายหญิงเน้นผัก/โปรตีน · ฝ่ายชายเพิ่มข้าวและของว่าง</p>
+      </div>
+    </div>
+    <div class="meal-wrap">
+      <table class="meal">
+        <thead><tr><th>วัน</th><th>เช้า 08:00</th><th>กลางวัน 12:00</th><th>เย็น 18:00</th></tr></thead>
+        <tbody id="mealBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>จัดการข้อมูล</h2>
+        <p class="sub">ข้อมูลเก็บในเบราว์เซอร์ของอุปกรณ์นี้ · แนะนำสำรองเป็นระยะ</p>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="exportBtn">ส่งออกข้อมูลสำรอง</button>
+      <button class="btn" id="importBtn">นำเข้าข้อมูล</button>
+      <input id="importFile" type="file" accept="application/json" hidden>
+      <button class="btn danger" id="resetBtn">ล้างข้อมูลทั้งหมด</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>หนึ่งวัน หนึ่งก้าว หนึ่งเปลวไฟ 🌿</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var KEY = 'lifeFire30_v2';
+  var DAYS = 30;
+  var WEEK_SIZE = 7;
+  var EX_IDX = 5;
+
+  var TASKS = [
+    { t: 'ตื่นนอนตามเวลาที่กำหนด', s: 'ลุกทันทีเมื่อปลุก' },
+    { t: 'กินอาหารเช้า', s: '08:00' },
+    { t: 'กินอาหารกลางวัน', s: '12:00' },
+    { t: 'กินอาหารเย็น', s: '18:00' },
+    { t: 'ดื่มน้ำให้เพียงพอ', s: 'จิบตลอดวัน' },
+    { t: 'เดินหรือออกกำลังกายตามแผน', s: '16:00' },
+    { t: 'ลุกเดินระหว่างใช้คอมพิวเตอร์', s: 'ทุก 45 นาที' },
+    { t: 'ลดการใช้โทรศัพท์ / TikTok ก่อนนอน', s: '21:30' },
+    { t: 'เข้านอนตามเป้าหมาย', s: '22:30' }
+  ];
+  var N = TASKS.length;
+
+  var WEEK_INFO = [
+    { label: 'สัปดาห์ที่ 1', range: '1–7 พ.ย.', theme: 'เริ่มเดินเบา ๆ 15 นาที' },
+    { label: 'สัปดาห์ที่ 2', range: '8–14 พ.ย.', theme: 'เดินเร็ว + กล้ามเนื้อเบา' },
+    { label: 'สัปดาห์ที่ 3', range: '15–21 พ.ย.', theme: 'เริ่มสลับวิ่งเหยาะ' },
+    { label: 'สัปดาห์ที่ 4', range: '22–28 พ.ย.', theme: 'วิ่งต่อเนื่อง + กล้ามเนื้อ' },
+    { label: 'วันปิดท้าย', range: '29–30 พ.ย.', theme: 'สรุปผล 30 วัน' }
+  ];
+
+  var DAY_PLANS = [
+    ['คืนนี้: เข้านอนก่อนเวลาเดิม 30 นาที · วางโทรศัพท์ไว้ที่โต๊ะ','ตื่นตามเวลาปกติ แต่ลุกทันที','กินข้าวครบ 3 มื้อ','เดินเบา ๆ 15 นาที (ไม่ต้องเร็ว)','จัดที่นอน + โต๊ะคอม 15 นาที','เตรียมอาหารเช้าพรุ่งนี้'],
+    ['ตื่นเร็วขึ้น 30 นาที · ออกไปรับแดด 5–10 นาที','เข้านอนเร็วขึ้นอีก 15–30 นาที','เริ่มจับเวลามื้อ 08:00 / 12:00 / 18:00','เดินเบา ๆ 15 นาที + ยืด 3 นาที','งดเล่นมือถือบนเตียง'],
+    ['ตื่นเร็วขึ้นอีก 30 นาที','งดกาแฟ/ชา หลังบ่าย 2 โมง','กินครบ 3 มื้อ + ของว่าง 15:30','เดินเบา ๆ 15–20 นาที','ยังไม่ต้องฝึกกล้ามเนื้อในสัปดาห์แรก'],
+    ['วันฟื้นฟู — ตื่นเวลาเดิม','เดินสบาย ๆ 20 นาที','ยืดเหยียด 5 นาที','กินครบ 3 มื้อ ตรงเวลา','ซักผ้าปูที่นอน / จัดพื้นที่'],
+    ['ตื่นเร็วขึ้นอีก 30 นาที','เดินเร็วขึ้นเล็กน้อย 20 นาที','กินครบ 3 มื้อ','งดหน้าจอก่อนนอน 30 นาที','บันทึกโน้ตความรู้สึกวันนี้'],
+    ['ตื่นเวลาเดิม','เดิน 20 นาที','ทำอาหารกินด้วยกัน 1 มื้อ','ออกไปข้างนอกด้วยกัน 30 นาที','ตรวจว่ากินครบ 3 มื้อ'],
+    ['เดินสบาย ๆ 20 นาที + ยืด','ชั่งน้ำหนักตอนเช้า (เงื่อนไขเดียวกับวันแรก)','ประเมินสัปดาห์ 1: ตื่นเช้าขึ้นไหม / กินครบกี่วัน','วางแผนสัปดาห์ที่ 2 ด้วยกัน'],
+    ['ตื่นเร็วขึ้นอีก 30 นาที','เดินเร็ว 20 นาที + ยืดเหยียด 5 นาที','Squat 8×2 · Wall Push-up 8×2','กินครบ 3 มื้อ','งดหน้าจอ 30 นาทีก่อนนอน'],
+    ['วันฟื้นฟู — ตื่นเวลาเดิม','เดินเบา ๆ 15 นาที','ยืดเหยียด 10 นาที (ไม่ฝึกกล้ามเนื้อ)','กินครบ 3 มื้อ','นอนให้พอ 7–9 ชั่วโมง'],
+    ['ตื่นเร็วขึ้นอีก 15 นาที','เดินเร็ว 20–25 นาที','Squat 10×2 · Wall Push-up 10×2 · Glute Bridge 10×2','กินครบ 3 มื้อ + ของว่าง','ลด TikTok ก่อนนอน'],
+    ['วันฟื้นฟู — เดินสบาย 20 นาที','ยืดเหยียด 10 นาที','ไม่ฝึกกล้ามเนื้อ','กินครบ 3 มื้อ','ทำกิจกรรมเบา ๆ ร่วมกัน'],
+    ['ตื่นเวลาเดิม','เดินเร็ว 20–25 นาที + ยืด','Squat 10×2 · Wall Push-up 10×2 · Glute Bridge 12×2','กินครบ 3 มื้อ','ออกไปรับแดดตอนเช้า 10 นาที'],
+    ['ตื่นเวลาเดิม','เดิน 20 นาที','ทำอาหารกินด้วยกัน','ออกไปข้างนอก 30 นาที','ตรวจการกิน 3 มื้อ'],
+    ['เดิน 20–25 นาที + ยืด','ชั่งน้ำหนักสัปดาห์ที่ 2','ประเมิน: กินครบ 3 มื้อกี่วัน / ออกกำลังกายกี่วัน','วางแผนสัปดาห์ที่ 3'],
+    ['ตื่นเวลาเดิม','เดินสลับวิ่งเหยาะ: วิ่ง 1 นาที / เดิน 2 นาที × 5 รอบ','ยืดเหยียดหลังวิ่ง 5 นาที','กินครบ 3 มื้อ','งดกาแฟหลังบ่าย 2 โมง'],
+    ['วันฟื้นฟู — เดินเบา 15 นาที','ยืดเหยียด 10 นาที','ไม่ฝึกกล้ามเนื้อ','กินครบ 3 มื้อ + ของว่าง','เข้านอนก่อน 22:30'],
+    ['ตื่นเวลาเดิม','เดินสลับวิ่งเหยาะ 6 รอบ','Squat 10×2 · Wall Push-up 10×2','กินครบ 3 มื้อ','บันทึกโน้ตความรู้สึก'],
+    ['วันฟื้นฟู — เดินสบาย 20 นาที','ยืดเหยียด 10 นาที','ไม่ฝึกกล้ามเนื้อ','กินครบ 3 มื้อ','จัดห้อง/พื้นที่ทำงาน'],
+    ['ตื่นเวลาเดิม','เดินสลับวิ่งเหยาะ 6 รอบ','ฝึกกล้ามเนื้อ 3 ท่า','กินครบ 3 มื้อ','ออกไปรับแดดเช้า'],
+    ['ตื่นเวลาเดิม','เดิน 20 นาที','ทำอาหารกินด้วยกัน','ออกไปข้างนอก 30 นาที','ตรวจการกิน 3 มื้อ'],
+    ['เดิน/วิ่งเบา 20–25 นาที + ยืด','ชั่งน้ำหนักสัปดาห์ที่ 3','ประเมิน: วิ่งได้นานขึ้นไหม / หายใจดีขึ้นไหม','วางแผนสัปดาห์ที่ 4'],
+    ['ตื่นเวลาเดิม','เดินสลับวิ่งเหยาะ 8 รอบ','ฝึกกล้ามเนื้อ 3 ท่า','กินครบ 3 มื้อ','งดหน้าจอก่อนนอน'],
+    ['วันฟื้นฟู — เดินเบา 15 นาที','ยืดเหยียด 10 นาที','ไม่ฝึกหนัก','กินครบ 3 มื้อ','นอนให้พอ 7–9 ชั่วโมง'],
+    ['ตื่นเวลาเดิม','วิ่งเหยาะต่อเนื่อง 15–20 นาที (ถ้าไหว)','Squat 10×2 · Wall Push-up 10×2 · Glute Bridge 12×2','กินครบ 3 มื้อ + ของว่าง','งดกาแฟหลังบ่าย 2 โมง'],
+    ['วันฟื้นฟู — เดินสบาย 20 นาที','ยืดเหยียด 10 นาที','ไม่ฝึกกล้ามเนื้อ','กินครบ 3 มื้อ','ทำกิจกรรมผ่อนคลาย'],
+    ['ตื่นเวลาเดิม','วิ่งเหยาะต่อเนื่อง 20 นาที','ฝึกกล้ามเนื้อ 3 ท่า','กินครบ 3 มื้อ','ออกไปรับแดดเช้า'],
+    ['ตื่นเวลาเดิม','เดิน 20 นาที','ทำอาหารกินด้วยกัน','ออกไปข้างนอก 30 นาที','ตรวจการกิน 3 มื้อ'],
+    ['เดิน/วิ่งเบา 20–25 นาที','ชั่งน้ำหนักสัปดาห์ที่ 4','ประเมิน: วิ่งได้ไกลขึ้นไหม / เหนื่อยน้อยลงไหม','วางแผนสัปดาห์ที่ 5'],
+    ['เดิน/วิ่งเบา 20–25 นาที + ยืด','ทบทวนทั้งเดือน: อะไรทำได้ดี / อะไรอยากปรับ','กินครบ 3 มื้อ','นอนให้พอ','เตรียมประเมินผลพรุ่งนี้'],
+    ['ประเมินผล 30 วัน','ชั่งน้ำหนักตอนเช้า (เงื่อนไขเดียวกับวันแรก)','สรุป: ตื่นเช้าขึ้นไหม / กินครบกี่วัน / ออกกำลังกายกี่วัน','นอนหลับดีขึ้นไหม / มีแรงขึ้นไหม / อารมณ์ดีขึ้นไหม','วางแผนเดือนที่ 2 ด้วยกัน']
+  ];
+
+  var MEALS = [
+    ['ไข่ต้ม + ข้าว + นม', 'ข้าวไก่ผัดผัก', 'ข้าว + ปลา + ผัก'],
+    ['ขนมปัง + ไข่ + นม', 'ข้าวกะเพราหมู', 'ข้าว + ต้มจืดเต้าหู้'],
+    ['ข้าวไข่เจียว', 'ข้าวไก่ย่าง + ผัก', 'ข้าว + ปลาทู'],
+    ['ข้าวต้มหมู', 'ข้าวผัดไก่ + ผัก', 'ข้าว + ไข่ต้ม + แกงจืด'],
+    ['ไข่ต้ม + กล้วย + นม', 'ข้าวหมูผัดขิง', 'ข้าว + กุ้ง + ผัก'],
+    ['ข้าว + ไข่ดาว', 'ข้าวไก่กระเทียม', 'ข้าว + แกงจืดหมู'],
+    ['โจ๊กหมู + ไข่', 'ข้าวปลา + ผัก', 'ข้าว + ไข่ + เต้าหู้']
+  ];
+
+  var state, selected = 0, person = 'female', activeWeek = 0;
+
+  function flamesForDay(i) { return (i % WEEK_SIZE) + 1; }
+  function maxFlames() {
+    var s = 0;
+    for (var i = 0; i < DAYS; i++) s += flamesForDay(i);
+    return s;
+  }
+  function weekOf(i) { return i < 28 ? Math.floor(i / WEEK_SIZE) : 4; }
+  function weekStart(w) { return w * WEEK_SIZE; }
+  function weekEnd(w) { return w === 4 ? DAYS - 1 : Math.min((w + 1) * WEEK_SIZE - 1, DAYS - 1); }
+
+  function blankAlt() { return { used: false, text: '' }; }
+  function blankDay() {
+    return {
+      female: new Array(N).fill(false),
+      male: new Array(N).fill(false),
+      altF: blankAlt(), altM: blankAlt(),
+      noteF: '', noteM: ''
+    };
+  }
+  function normAlt(a) {
+    return { used: !!(a && a.used), text: (a && typeof a.text === 'string') ? a.text : '' };
+  }
+  function normDay(d) {
+    var o = blankDay();
+    for (var i = 0; i < N; i++) {
+      o.female[i] = !!(d && d.female && d.female[i]);
+      o.male[i] = !!(d && d.male && d.male[i]);
+    }
+    o.altF = normAlt(d && d.altF);
+    o.altM = normAlt(d && d.altM);
+    o.noteF = (d && typeof d.noteF === 'string') ? d.noteF : '';
+    o.noteM = (d && typeof d.noteM === 'string') ? d.noteM : '';
+    return o;
+  }
+  function normState(raw) {
+    var out = { days: {} };
+    var src = (raw && raw.days && typeof raw.days === 'object') ? raw.days : {};
+    for (var i = 0; i < DAYS; i++) out.days[i] = normDay(src[i]);
+    return out;
+  }
+  function load() {
+    try {
+      var raw = JSON.parse(localStorage.getItem(KEY));
+      if (raw && raw.days) return normState(raw);
+    } catch (e) {}
+    return normState(null);
+  }
+  function persist() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); }
+    catch (e) { alert('บันทึกไม่สำเร็จ พื้นที่จัดเก็บอาจเต็ม'); }
+  }
+  function save() { persist(); render(); }
+  function getDay(i) { if (!state.days[i]) state.days[i] = blankDay(); return state.days[i]; }
+  function countOn(a) { var n = 0; for (var i = 0; i < N; i++) if (a[i]) n++; return n; }
+  function isDone(i) { var d = getDay(i); return countOn(d.female) === N && countOn(d.male) === N; }
+  function hasAlt(i) { var d = getDay(i); return d.altF.used || d.altM.used; }
+  function totalFlames() {
+    var s = 0;
+    for (var i = 0; i < DAYS; i++) if (isDone(i)) s += flamesForDay(i);
+    return s;
+  }
+  function totalDaysDone() {
+    var n = 0;
+    for (var i = 0; i < DAYS; i++) if (isDone(i)) n++;
+    return n;
+  }
+
+  function celebrate(dayNum, gained) {
+    var overlay = document.createElement('div');
+    overlay.className = 'burst-overlay';
+    var glow = document.createElement('div');
+    glow.className = 'burst-glow';
+    overlay.appendChild(glow);
+    var icons = ['🔥','✨','⭐','💫','🌟'];
+    for (var i = 0; i < 42; i++) {
+      var s = document.createElement('span');
+      s.className = 'burst-spark';
+      s.textContent = icons[Math.floor(Math.random() * icons.length)];
+      var a = Math.random() * Math.PI * 2;
+      var dist = 120 + Math.random() * 320;
+      s.style.setProperty('--tx', (Math.cos(a) * dist) + 'px');
+      s.style.setProperty('--ty', (Math.sin(a) * dist - 40) + 'px');
+      s.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+      s.style.setProperty('--dur', (0.9 + Math.random() * 0.9) + 's');
+      s.style.setProperty('--del', (Math.random() * 0.2) + 's');
+      s.style.left = '50%'; s.style.top = '50%';
+      overlay.appendChild(s);
+    }
+    var toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = '<strong>ปลดล็อกวันที่ ' + dayNum + ' 🔥</strong><span>+ ' + gained + ' ดวง</span>';
+    overlay.appendChild(toast);
+    document.body.appendChild(overlay);
+    setTimeout(function () { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 2900);
+  }
+
+  function renderWeekTabs() {
+    var box = document.getElementById('weekTabs');
+    box.innerHTML = '';
+    for (var w = 0; w < WEEK_INFO.length; w++) {
+      var start = weekStart(w), end = weekEnd(w);
+      var weekMax = 0, weekGot = 0;
+      for (var k = start; k <= end; k++) {
+        weekMax += flamesForDay(k);
+        if (isDone(k)) weekGot += flamesForDay(k);
+      }
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'week-tab' + (w === activeWeek ? ' active' : '');
+      btn.innerHTML =
+        '<span class="wt-label">' + WEEK_INFO[w].label + '</span>' +
+        '<span class="wt-range">' + WEEK_INFO[w].range + ' · ' + weekGot + '/' + weekMax + ' ดวง</span>' +
+        '<span class="wt-theme">' + WEEK_INFO[w].theme + '</span>';
+      btn.onclick = (function (idx) {
+        return function () { activeWeek = idx; selected = weekStart(idx); render(); };
+      })(w);
+      box.appendChild(btn);
+    }
+  }
+
+  function renderWeekGrid() {
+    var info = WEEK_INFO[activeWeek];
+    var start = weekStart(activeWeek), end = weekEnd(activeWeek);
+    var weekMax = 0, weekGot = 0;
+    for (var k = start; k <= end; k++) {
+      weekMax += flamesForDay(k);
+      if (isDone(k)) weekGot += flamesForDay(k);
+    }
+    document.getElementById('weekBanner').innerHTML =
+      '<div><span class="wb-title">' + info.label + '</span> · ' +
+      '<span class="wb-theme">' + info.theme + '</span></div>' +
+      '<div class="wb-prog">' + weekGot + ' / ' + weekMax + ' ดวง</div>';
+
+    var box = document.getElementById('fireWeek');
+    box.innerHTML = '';
+    box.className = 'days' + ((end - start + 1) < 7 ? ' short' : '');
+
+    for (var i = start; i <= end; i++) {
+      var ok = isDone(i), altUsed = hasAlt(i);
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'fday' + (ok ? ' lit' : '') + (i === selected ? ' sel' : '');
+      var flamesHtml = '';
+      var flamesCount = flamesForDay(i);
+      for (var k3 = 0; k3 < flamesCount; k3++) {
+        flamesHtml += '<span class="flame-mini' + (ok ? ' on' : '') + '">🔥</span>';
+      }
+      btn.innerHTML =
+        '<span class="dnum">' + (i + 1) + '<small>พ.ย.</small></span>' +
+        '<span class="flames">' + flamesHtml + '</span>' +
+        '<span class="gain">' + (ok ? '+' + flamesCount : 'รอ') + '</span>' +
+        (altUsed ? '<span class="alt-badge">🎯</span>' : '');
+      btn.onclick = (function (idx) {
+        return function () { selected = idx; activeWeek = weekOf(idx); render(); };
+      })(i);
+      box.appendChild(btn);
+    }
+  }
+
+  function renderStats() {
+    var total = totalFlames(), done = totalDaysDone();
+    var d = getDay(selected);
+    var f = countOn(d.female), m = countOn(d.male);
+    document.getElementById('fireCount').textContent = total + ' / ' + maxFlames();
+    document.getElementById('daysDone').textContent = done + ' / ' + DAYS;
+    document.getElementById('percent').textContent = Math.round((f + m) / (N * 2) * 100) + '%';
+    document.getElementById('barFill').style.width = (total / maxFlames() * 100) + '%';
+    var msg;
+    if (done === DAYS) msg = 'ครบทั้ง 30 วันแล้ว! คุณทั้งคู่ทำได้ดีมาก 🎉';
+    else if (done > 0) msg = 'จุดไฟสำเร็จแล้ว ' + done + ' วัน · สะสมได้ ' + total + ' จาก ' + maxFlames() + ' ดวง';
+    else msg = 'เริ่มจากวันแรก แล้วค่อย ๆ เติมไฟให้ตัวเอง';
+    document.getElementById('notice').textContent = msg;
+    var status;
+    if (f + m === 0) status = 'ยังไม่เริ่ม';
+    else if (f === N && m === N) status = 'สำเร็จแล้ว ✓';
+    else status = 'กำลังทำ · เหลือ ' + ((N * 2) - f - m) + ' ข้อ';
+    document.getElementById('dayStatus').textContent = status;
+  }
+
+  function renderChecklist() {
+    var d = getDay(selected);
+    var arr = d[person];
+    var alt = (person === 'female') ? d.altF : d.altM;
+    var box = document.getElementById('checklist');
+    box.innerHTML = '';
+    for (var i = 0; i < N; i++) {
+      var isAltTask = (i === EX_IDX && alt.used);
+      var row = document.createElement('div');
+      row.className = 'item' + (arr[i] ? ' done' : '') + (isAltTask ? ' alt-on' : '');
+      var cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.id = 't-' + person + '-' + i;
+      cb.checked = !!arr[i];
+      if (isAltTask) cb.disabled = true;
+      cb.onchange = (function (idx) {
+        return function (ev) { toggleTask(idx, ev.target.checked); };
+      })(i);
+      var labelText = TASKS[i].t, labelSub = TASKS[i].s;
+      if (isAltTask) {
+        labelText = 'เดินหรือออกกำลังกาย (ใช้กิจกรรมอื่นแทน)';
+        labelSub = alt.text ? '→ ' + alt.text : '→ ระบุด้านล่าง';
+      }
+      var label = document.createElement('label');
+      label.htmlFor = cb.id;
+      label.innerHTML = labelText + '<small>' + labelSub + '</small>';
+      row.appendChild(cb); row.appendChild(label);
+      box.appendChild(row);
+    }
+    var personLabel = (person === 'female' ? 'ฝ่ายหญิง' : 'ฝ่ายชาย');
+    document.getElementById('dateText').textContent =
+      'วันที่ ' + (selected + 1) + ' พฤศจิกายน 2569 · ' + personLabel + ' ' +
+      countOn(arr) + '/' + N + ' ข้อ';
+    document.getElementById('note').value = (person === 'female') ? d.noteF : d.noteM;
+    var tabs = document.querySelectorAll('.tab');
+    for (var k = 0; k < tabs.length; k++) {
+      tabs[k].classList.toggle('active', tabs[k].getAttribute('data-person') === person);
+    }
+    renderAltPanel();
+  }
+
+  function renderAltPanel() {
+    var d = getDay(selected);
+    var alt = (person === 'female') ? d.altF : d.altM;
+    var btn = document.getElementById('altBtn');
+    var panel = document.getElementById('altPanel');
+    var input = document.getElementById('altInput');
+    btn.classList.toggle('active', alt.used);
+    btn.textContent = alt.used
+      ? '🎯 ใช้กิจกรรมอื่นแทนอยู่ — กดอีกครั้งเพื่อยกเลิก'
+      : '🎯 วันนี้ไม่ได้วิ่ง — ทำกิจกรรมอื่นแทน';
+    panel.classList.toggle('hidden', !alt.used);
+    input.value = alt.text || '';
+  }
+
+  function renderPlan() {
+    document.getElementById('planTitle').textContent = 'แผนของวันที่ ' + (selected + 1);
+    document.getElementById('planDate').textContent =
+      'วันที่ ' + (selected + 1) + ' พฤศจิกายน 2569 · ' + WEEK_INFO[weekOf(selected)].label;
+    var body = document.getElementById('planBody');
+    body.innerHTML = '';
+    var items = DAY_PLANS[selected] || [];
+    for (var i = 0; i < items.length; i++) {
+      var div = document.createElement('div');
+      div.className = 'plan-item';
+      div.textContent = items[i];
+      body.appendChild(div);
+    }
+    var d = getDay(selected);
+    if (d.altF.used || d.altM.used) {
+      var altInfo = document.createElement('div');
+      altInfo.className = 'plan-item alt';
+      var parts = [];
+      if (d.altF.used) parts.push('หญิง: ' + (d.altF.text || '(ยังไม่ระบุ)'));
+      if (d.altM.used) parts.push('ชาย: ' + (d.altM.text || '(ยังไม่ระบุ)'));
+      altInfo.textContent = 'วันนี้ใช้กิจกรรมอื่นแทน — ' + parts.join(' · ');
+      body.appendChild(altInfo);
+    }
+  }
+
+  function renderMeals() {
+    var tb = document.getElementById('mealBody');
+    tb.innerHTML = '';
+    for (var i = 0; i < MEALS.length; i++) {
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (i + 1) + ' พ.ย.</td>' +
+                     '<td>' + MEALS[i][0] + '</td>' +
+                     '<td>' + MEALS[i][1] + '</td>' +
+                     '<td>' + MEALS[i][2] + '</td>';
+      tb.appendChild(tr);
+    }
+  }
+
+  function toggleTask(idx, checked) {
+    var before = isDone(selected);
+    getDay(selected)[person][idx] = !!checked;
+    var after = isDone(selected);
+    save();
+    if (!before && after) celebrate(selected + 1, flamesForDay(selected));
+  }
+
+  function render() {
+    renderWeekTabs();
+    renderWeekGrid();
+    renderStats();
+    renderChecklist();
+    renderPlan();
+  }
+
+  var tabs = document.querySelectorAll('.tab');
+  for (var ti = 0; ti < tabs.length; ti++) {
+    tabs[ti].onclick = (function (btn) {
+      return function () { person = btn.getAttribute('data-person'); render(); };
+    })(tabs[ti]);
+  }
+
+  document.getElementById('altBtn').onclick = function () {
+    var d = getDay(selected);
+    var altKey = (person === 'female') ? 'altF' : 'altM';
+    var exKey = (person === 'female') ? 'female' : 'male';
+    var alt = d[altKey];
+    alt.used = !alt.used;
+    if (alt.used) d[exKey][EX_IDX] = true;
+    else { d[exKey][EX_IDX] = false; alt.text = ''; }
+    save();
+  };
+
+  document.getElementById('altInput').addEventListener('input', function (ev) {
+    var d = getDay(selected);
+    var altKey = (person === 'female') ? 'altF' : 'altM';
+    d[altKey].text = ev.target.value;
+    persist();
+    var list = document.getElementById('checklist');
+    if (list && list.children[EX_IDX]) {
+      var lbl = list.children[EX_IDX].querySelector('label');
+      if (lbl) {
+        var sub = ev.target.value ? ('→ ' + ev.target.value) : '→ ระบุด้านล่าง';
+        lbl.innerHTML = 'เดินหรือออกกำลังกาย (ใช้กิจกรรมอื่นแทน)<small>' + sub + '</small>';
+      }
+    }
+    renderPlan();
+  });
+
+  document.getElementById('note').addEventListener('input', function (ev) {
+    var d = getDay(selected);
+    if (person === 'female') d.noteF = ev.target.value;
+    else d.noteM = ev.target.value;
+    persist();
+  });
+
+  document.getElementById('saveNote').onclick = function () {
+    persist();
+    alert('บันทึกโน้ตเรียบร้อยแล้ว');
+  };
+
+  document.getElementById('clearPerson').onclick = function () {
+    if (!confirm('ล้างเช็กลิสต์ โน้ต และกิจกรรมแทนของคนนี้ในวันที่เลือกหรือไม่?')) return;
+    var d = getDay(selected);
+    if (person === 'female') {
+      d.female = new Array(N).fill(false);
+      d.altF = blankAlt(); d.noteF = '';
+    } else {
+      d.male = new Array(N).fill(false);
+      d.altM = blankAlt(); d.noteM = '';
+    }
+    save();
+  };
+
+  document.getElementById('exportBtn').onclick = function () {
+    var blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'life-fire-30-days-backup.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  };
+  document.getElementById('importBtn').onclick = function () {
+    document.getElementById('importFile').click();
+  };
+  document.getElementById('importFile').onchange = function (ev) {
+    var file = ev.target.files && ev.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var parsed = JSON.parse(reader.result);
+        if (!parsed || typeof parsed !== 'object' || !parsed.days) throw new Error('bad');
+        state = normState(parsed);
+        selected = 0; activeWeek = 0;
+        save();
+        alert('นำเข้าข้อมูลเรียบร้อยแล้ว');
+      } catch (err) {
+        alert('ไฟล์ไม่ถูกต้อง หรือไม่ใช่ไฟล์สำรองของเว็บนี้');
+      }
+    };
+    reader.readAsText(file);
+    ev.target.value = '';
+  };
+  document.getElementById('resetBtn').onclick = function () {
+    if (!confirm('ต้องการล้างข้อมูลทั้งหมดในอุปกรณ์นี้หรือไม่? การกระทำนี้ย้อนกลับไม่ได้')) return;
+    state = normState(null); selected = 0; activeWeek = 0;
+    save();
+  };
+
+  state = load();
+  renderMeals();
+  render();
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js')
+        .then(function (reg) { console.log('SW registered:', reg.scope); })
+        .catch(function (err) { console.log('SW failed:', err); });
+    });
+  }
+})();
+</script>
+</body>
+</html>
